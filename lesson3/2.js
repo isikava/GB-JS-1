@@ -5,14 +5,12 @@
 //         b) Организовать функцию countBasketPrice, которая будет считать стоимость корзины.
 
 const basket = [100, 200, 255, 2]
-let sum = 0
-
 function countBasketPrice() {
+    let sum = 0
     for (const value of basket) {
         sum += value
     }
+    return sum
 }
-
 console.log(basket)
-countBasketPrice()
-console.log(sum)
+console.log(countBasketPrice())
