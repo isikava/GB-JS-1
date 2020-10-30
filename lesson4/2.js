@@ -40,7 +40,7 @@ class Cart {
         }, 0)
     }
     showCartTotal() {
-        let result = cart.countCartTotal()
+        let result = this.countCartTotal()
         console.log(`Сумма в корзине: ${result}`)
     }
 }
