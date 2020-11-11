@@ -17,19 +17,17 @@ class Product {
             <img src="${img}" alt="img" class="product__image_img">
             </div> 
             <div>Товар: <span>${name}</span></div>
-            <div>Цена: <span>${price}</span></div>
-            
+            <div>Цена: <span>${price}$</span></div>            
             `
         const btn = document.createElement('button')
-        btn.classList.add('btn')
-        btn.classList.add('btn-primary')
+        btn.classList.add('btn', 'btn-primary')
         btn.innerHTML = 'В корзину'
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            // let self = e.currentTarget;
+            // self.disabled = true
             const CartInstance = new Cart()
-            let cartProduct = new CartProduct()
-            let copy = Object.assign(cartProduct, this)
-            CartInstance.add(copy)
-            console.log(copy)
+            const copy = Object.assign(new CartProduct(), this)
+            CartInstance.addItem(copy)
             console.log(CartInstance)
         })
 
@@ -45,15 +43,74 @@ class CartProduct extends Product {
         super(name, price, img)
     }
 
+    inc() {
+        this.count++
+    }
+
+    dec() {
+        this.count--
+    }
+
     getCartTemplate() {
         const { name, price, count } = this
         const template = document.createElement('div')
+        template.classList.add('d-flex', 'justify-content-between')
         template.innerHTML = `
-            <span>${name}: ${price} x ${count} = ${price * count}</span>
+            <span>${name}: ${price}$ x ${count} = ${price * count}$</span>
             `
-        // template.append(this.getMinusBtn())
+        template.prepend(this.getDeleteBtn())
+
+        const buttons = document.createElement('div')
+        buttons.append(this.getMinusBtn())
+        buttons.append(this.getPlusBtn())
+        template.append(buttons)
 
         return template
+    }
+
+    getMinusBtn() {
+        const btn = document.createElement('button')
+        btn.classList.add('btn', 'btn-secondary', 'btn-changecount')
+        btn.innerHTML = '-'
+
+        btn.addEventListener('click', () => {
+            const CartInstance = new Cart()
+            CartInstance.minusItem(this)
+            console.log(this)
+            console.log(CartInstance)
+        })
+
+        return btn
+    }
+
+    getPlusBtn() {
+        const btn = document.createElement('button')
+        btn.classList.add('btn', 'btn-secondary', 'btn-changecount')
+        btn.innerHTML = '+'
+
+        btn.addEventListener('click', () => {
+            const CartInstance = new Cart()
+            CartInstance.addItem(this)
+            console.log(this)
+            console.log(CartInstance)
+        })
+
+        return btn
+    }
+
+    getDeleteBtn() {
+        const btn = document.createElement('button')
+        btn.classList.add('btn', 'btn-secondary', 'btn-changecount')
+        btn.innerHTML = '-'
+
+        btn.addEventListener('click', () => {
+            const CartInstance = new Cart()
+            CartInstance.removeItem(this)
+            console.log(this)
+            console.log(CartInstance)
+        })
+
+        return btn
     }
 }
 
@@ -62,7 +119,7 @@ class ProductsList {
 
     constructor() { }
 
-    add(item) {
+    addItem(item) {
         this.items.push(item)
         this.render()
     }
@@ -91,6 +148,31 @@ class Cart extends ProductsList {
         this.init()
 
         Cart._instance = this
+    }
+
+    findItem(item) {
+        const elem = this.items.find(good => good.name === item.name)
+        return elem
+    }
+
+    addItem(item) {
+        const exists = this.findItem(item)
+        exists ? exists.inc() : this.items.push(item)
+        this.render()
+    }
+
+    removeItem(item) {
+        let index = this.items.indexOf(item)
+        if (index > -1) {
+            this.items.splice(index, 1)
+        }
+        this.render()
+    }
+
+    minusItem(item) {
+        if (item.count > 1) item.dec()
+        // item.count > 1 ? item.dec() : this.items = this.items.filter(good => item.name !== good.name)
+        this.render()
     }
 
     init() {
@@ -124,7 +206,7 @@ class Cart extends ProductsList {
 
     getSumTemplate() {
         const template = document.createElement('div')
-        template.innerHTML = `Суммарная цена: ${this.getCartTotal()}`
+        template.innerHTML = `Суммарная цена: ${this.getCartTotal()}$`
 
         return template
     }
@@ -148,11 +230,7 @@ class Cart extends ProductsList {
             placeToRender.append(template)
         })
 
-        if (this.items.length) {
-            placeToRender.append(this.getSumTemplate())
-        } else {
-            placeToRender.append(this.getEmptyTemplate())
-        }
+        this.items.length ? placeToRender.append(this.getSumTemplate()) : placeToRender.append(this.getEmptyTemplate())
     }
 }
 
@@ -165,9 +243,8 @@ class Nav {
         const nav = document.createElement('nav')
         nav.classList.add("navbar", "navbar-light", "bg-light")
         nav.innerHTML = `
-                <a class="navbar-brand" href="#">MyShop</a>
-                
-        `
+                <a class="navbar-brand" href="#">MyShop</a>                
+                `
         placeToRender.append(nav)
     }
 }
@@ -178,8 +255,8 @@ NavInst.render()
 const ProductListInst = new ProductsList()
 const prod1 = new Product('Mac', 3000, 'img/Mac.jpg')
 const prod2 = new Product('HP', 2000, 'img/Hp.jpg')
-ProductListInst.add(prod1)
-ProductListInst.add(prod2)
+ProductListInst.addItem(prod1)
+ProductListInst.addItem(prod2)
 console.log(ProductListInst)
 
 const CartInst = new Cart()
