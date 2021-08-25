@@ -1,0 +1,21 @@
+.product {
+    width: 200px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;    
+    align-items: center;
+}
+
+.product__image {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product__image_img {
+    width: 100%; 
+    height: auto;
+    object-fit: cover;
+}
